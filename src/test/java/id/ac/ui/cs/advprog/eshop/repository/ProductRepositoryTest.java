@@ -66,4 +66,63 @@ class ProductRepositoryTest {
         assertEquals(product2.getProductId(), savedProduct.getProductId());
         assertFalse(productIterator.hasNext());
     }
+
+    @Test
+    void testEditSuccess() {
+        Product product = new Product();
+        product.setProductName("Barang A");
+        product.setProductQuantity(10);
+        productRepository.create(product);
+
+        Product updatedProduct = new Product();
+        updatedProduct.setProductId(product.getProductId());
+        updatedProduct.setProductName("Barang B");
+        updatedProduct.setProductQuantity(20);
+
+        productRepository.edit(updatedProduct);
+
+        Product result = productRepository.findById(product.getProductId());
+        assertEquals("Barang B", result.getProductName());
+        assertEquals(20, result.getProductQuantity());
+    }
+
+    @Test
+    void testEditNotFound() {
+        Product product = new Product();
+        product.setProductId("ID-Asli");
+        product.setProductName("Barang Asli");
+        productRepository.create(product);
+
+        Product fakeProduct = new Product();
+        fakeProduct.setProductId("ID-Ngasal");
+        fakeProduct.setProductName("Barang Palsu");
+
+        Product result = productRepository.edit(fakeProduct);
+        assertNull(result);
+    }
+
+    @Test
+    void testDeleteSuccess() {
+        Product product = new Product();
+        product.setProductName("Barang Akan Dihapus");
+        productRepository.create(product);
+
+        productRepository.delete(product.getProductId());
+
+        Iterator<Product> productIterator = productRepository.findAll();
+        assertFalse(productIterator.hasNext());
+    }
+
+    @Test
+    void testDeleteNotFound() {
+        Product product = new Product();
+        product.setProductName("Barang Tetap Ada");
+        productRepository.create(product);
+
+        productRepository.delete("ID-Salah");
+
+        Iterator<Product> productIterator = productRepository.findAll();
+        assertTrue(productIterator.hasNext());
+        assertEquals(product.getProductName(), productIterator.next().getProductName());
+    }
 }
